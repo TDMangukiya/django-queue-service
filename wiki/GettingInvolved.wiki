@@ -1,0 +1,3 @@
+#summary Getting Involved
+
+The Queue Service project is (at the moment) a week's hacking, made available for your enjoyment. If you'd like to get involved with this project, or send me a patch to an obvious bug, please don't hesitate to contact me.
