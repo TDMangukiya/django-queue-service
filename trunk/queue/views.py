@@ -18,9 +18,9 @@ def create_queue(request):
     # curl -i http://localhost:8000/createqueue/ -d name=default
     if request.method == "POST":
         requested_name = request.POST.get('name', None)
-        if request_name is None:
+        if requested_name is None:
             return HttpResponseForbidden()
-        msg = Queue(name=request_name)
+        msg = Queue(name=requested_name)
         msg.save()
         return HttpResponse("", mimetype='text/plain')
     return HttpResponseForbidden()
@@ -30,10 +30,10 @@ def delete_queue(request):
     # curl -i http://localhost:8000/deletequeue/ -d name=default
     if request.method == "POST":
         requested_name = request.POST.get('name', None)
-        if request_name is None:
+        if requested_name is None:
             return HttpResponseForbidden()
         try:
-            q = Queue.objects.get(name=request_name)
+            q = Queue.objects.get(name=requested_name)
             if q.message_set.count() > 0:
                 return HttpResponseNotAllowed()
             q.delete()
@@ -47,10 +47,10 @@ def purge_queue(request):
     # curl -i http://localhost:8000/purgequeue/ -d name=default
     if request.method == "POST":
         requested_name = request.POST.get('name', None)
-        if request_name is None:
+        if requested_name is None:
             return HttpResponseForbidden()
         try:
-            q = Queue.objects.get(name=request_name)
+            q = Queue.objects.get(name=requested_name)
             for msg in q.message_set.all():
                 msg.delete()
             return HttpResponse("", mimetype='text/plain')
