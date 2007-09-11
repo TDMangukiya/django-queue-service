@@ -9,8 +9,8 @@ class Queue(models.Model):
     >>> print test_queue.default_expire
     5
     """
-    name = models.CharField(maxlength=255,unique=True)
-    default_expire = models.PositiveIntegerField(default=5)
+    name = models.CharField(maxlength=255, unique=True)
+    default_expire = models.PositiveIntegerField(default=5, help_text="In minutes.")
 
     def __str__(self):
         return self.name
@@ -20,40 +20,36 @@ class Queue(models.Model):
     
 # Create your models here.
 class MessageManager(models.Manager):
-    def pop(self,queue_name,expire_interval=5):
+    def pop(self, queue_name, expire_interval=5):
         """ returns a visible Message if available, or None. Any Message
         returned is set to 'invisible', so that future pop() invocations won't 
         retrieve it until after an expiration time (default of 5 minutes)."""
-        q = None
         try:
-            q = Queue.objects.get(name=queue_name)
-        except Queue.DoesNotExist:
-            pass
-        if q is None: 
-            return None
-        queryset = q.message_set.filter(visible=True).order_by('timestamp')
-        if len(queryset) < 1:
-            return None
-        else:
-            result = queryset[0]
+            result = self.filter(queue__name=queue_name, visible=True).order_by('timestamp')[0:1].get()
             result.visible = False
             result.expires = datetime.datetime.now()+datetime.timedelta(minutes=expire_interval)
             result.save()
             return result
-            
+        except Message.DoesNotExist:
+            return None
+
     def clear_expirations(self,queue_name):
-        q = None
         try:
             q = Queue.objects.get(name=queue_name)
         except Queue.DoesNotExist:
-            pass
-        if q is None: 
             return None
-        queryset = q.message_set.filter(visible=False,expires__lt=datetime.datetime.now())
-        for msg in queryset:
-            msg.expires = None
-            msg.visible = True
-            msg.save()
+        from django.db import connection, transaction, DatabaseError
+        cursor = connection.cursor()
+        try:
+            cursor.execute("UPDATE %s set expires=%%s, visible=%%s \
+                       where queue_id=%%s and visible=%%s and \
+                       expires < %%s" % self.model._meta.db_table, 
+                       [None, True, q.id, False, datetime.datetime.now()])
+        except DatabaseError:
+            # thread safety: updates can fail silently
+            pass
+        else:
+            transaction.commit_unless_managed()
         return None
 
 class Message(models.Model):
@@ -62,6 +58,8 @@ class Message(models.Model):
     >>> default = Queue.objects.get(name="default")
     >>> print default.name
     default
+    >>> default.message_set.count()
+    3
     >>> from queue.models import Message
     >>> x=Message(message="t1",queue=default)
     >>> x.save()
@@ -107,6 +105,8 @@ class Message(models.Model):
     >>> a.save()
     >>> b.expires=datetime.datetime.now()
     >>> b.save()
+    >>> import time
+    >>> time.sleep(.02) # needed on fast machines for the below test to succeed
     >>> Message.objects.clear_expirations('default')
     >>> len(Message.objects.filter(visible=True))
     7
