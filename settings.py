@@ -10,7 +10,7 @@ ADMINS = (
 MANAGERS = ADMINS
 
 DATABASE_ENGINE = 'sqlite3'    # 'postgresql_psycopg2', 'postgresql', 'mysql', 'sqlite3' or 'ado_mssql'.
-DATABASE_NAME = '/tmp/sqs'     # Or path to database file if using sqlite3. 
+DATABASE_NAME = '/tmp/sqs.db'     # Or path to database file if using sqlite3. 
 # DATABASE_NAME = ":memory:"
 DATABASE_USER = ''             # Not used with sqlite3.
 DATABASE_PASSWORD = ''         # Not used with sqlite3.
@@ -71,7 +71,7 @@ TEMPLATE_DIRS = (
     # Put strings here, like "/home/html/django_templates" or "C:/www/django/templates".
     # Always use forward slashes, even on Windows.
     # Don't forget to use absolute paths, not relative paths.
-    "/Users/heckj/Desktop/qs/templates",
+    #"/Users/heckj/Desktop/qs/templates",
 )
 
 INSTALLED_APPS = (
