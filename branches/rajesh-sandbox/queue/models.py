@@ -9,7 +9,7 @@ class Queue(models.Model):
     >>> print test_queue.default_expire
     5
     """
-    name = models.CharField(maxlength=255, unique=True)
+    name = models.CharField(maxlength=255, unique=True, db_index=True)
     default_expire = models.PositiveIntegerField(default=5, help_text="In minutes.")
 
     def __str__(self):
@@ -112,10 +112,10 @@ class Message(models.Model):
     7
     """
     message = models.TextField()
-    visible = models.BooleanField(default=True)
-    expires = models.DateTimeField(null=True,blank=True)
-    timestamp = models.DateTimeField(null=True,blank=True,default=datetime.datetime.now)
-    queue = models.ForeignKey(Queue,raw_id_admin=True)
+    visible = models.BooleanField(default=True, db_index=True)
+    expires = models.DateTimeField(null=True, blank=True, db_index=True)
+    timestamp = models.DateTimeField(null=True, blank=True, db_index=True, default=datetime.datetime.now)
+    queue = models.ForeignKey(Queue, raw_id_admin=True)
     objects = MessageManager()
     
     def save(self):
