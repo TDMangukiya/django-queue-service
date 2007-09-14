@@ -28,8 +28,8 @@ class MessageManager(models.Manager):
         """
         try:
             if queue is None:
-                # this allows is to do:
-                #   q.message_set.pop() if we already have an instance of q at hand
+                # The following code allows us to do:
+                # q.message_set.pop() when we already have an instance of q at hand
                 f = self
             else:
                 f = isinstance(queue, Queue) and queue.message_set or \
