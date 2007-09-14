@@ -51,8 +51,7 @@ def purge_queue(request):
             return HttpResponseForbidden()
         try:
             q = Queue.objects.get(name=requested_name)
-            for msg in q.message_set.all():
-                msg.delete()
+            q.message_set.all().delete()
             return HttpResponse("", mimetype='text/plain')
         except Queue.DoesNotExist:
             return HttpResponseNotFound()
@@ -84,7 +83,7 @@ def get(request, queue_name, response_type='text'):
     except Queue.DoesNotExist:
         return HttpResponseNotFound()
     #
-    msg = Message.objects.pop(q.name)
+    msg = q.message_set.pop()
     if response_type == 'json':
         msg_dict = {}
         if msg:
@@ -101,8 +100,7 @@ def clear_expirations(request, queue_name):
     # test count with
     # curl -i http://localhost:8000/q/default/clearexpire/
     try:
-        q = Queue.objects.get(name=queue_name)
-        Message.objects.clear_expirations(q.name)
+        Message.objects.clear_expirations(queue_name)
         return HttpResponse("", mimetype='text/plain')
     except Queue.DoesNotExist:
         return HttpResponseNotFound()
@@ -147,7 +145,7 @@ def put(request, queue_name):
         print request.POST
         try:
             q = Queue.objects.get(name=queue_name)
-            msg = Message(message=request.POST['message'],queue=q)
+            msg = Message(message=request.POST['message'], queue=q)
             msg.save()
             return HttpResponse("OK", mimetype='text/plain')
         except Queue.DoesNotExist:
