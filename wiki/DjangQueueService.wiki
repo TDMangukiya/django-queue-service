@@ -11,6 +11,7 @@ The question often comes up on the [http://groups.google.com/group/django-users 
 == Linkage ==
 
  * BackgroundHistory
+ * MovingForward
  * GettingInvolved
 
-
+ 
