@@ -31,7 +31,7 @@ class MessageManager(models.Manager):
             pass
         if q is None: 
             return None
-        queryset = q.message_set.filter(visible=True).order_by('timestamp')
+        queryset = q.message_set.filter(visible=True).order_by('timestamp', 'id')
         if len(queryset) < 1:
             return None
         else:
