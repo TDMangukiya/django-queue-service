@@ -17,7 +17,7 @@ class Queue(models.Model):
 
     class Admin:
         pass
-    
+
 class MessageManager(models.Manager):
     def pop(self, queue=None, expire_interval=5):
         """ returns a visible Message if available, or None. Any Message
@@ -56,8 +56,8 @@ class MessageManager(models.Manager):
                        expires < %%s" % self.model._meta.db_table, 
                        [None, True, q.id, False, datetime.datetime.now()])
         except DatabaseError:
-            # For thread safety: these updates could be allowed to fail silently
-            # Perhaps, this isn't needed.
+            # @RD: For thread safety: these updates could be allowed to fail silently
+            # @RD: Perhaps, this isn't needed.
             pass
         else:
             transaction.commit_unless_managed()

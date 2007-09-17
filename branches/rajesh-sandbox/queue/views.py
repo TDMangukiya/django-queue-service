@@ -20,8 +20,8 @@ def create_queue(request):
         requested_name = request.POST.get('name', None)
         if requested_name is None:
             return HttpResponseForbidden()
-        msg = Queue(name=requested_name)
-        msg.save()
+        q = Queue(name=requested_name)
+        q.save()
         return HttpResponse("", mimetype='text/plain')
     return HttpResponseForbidden()
 
@@ -142,7 +142,6 @@ def put(request, queue_name):
     # test post with
     # curl -i http://localhost:8000/q/default/put/ -d message=hello
     if request.method == "POST":
-        print request.POST
         try:
             q = Queue.objects.get(name=queue_name)
             msg = Message(message=request.POST['message'], queue=q)

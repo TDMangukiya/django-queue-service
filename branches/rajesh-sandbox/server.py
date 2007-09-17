@@ -6,7 +6,7 @@ import os
 if not os.environ.get('DJANGO_SETTINGS_MODULE', False):
     os.environ['DJANGO_SETTINGS_MODULE'] = 'qs.settings'
 
-if __name__ == '__main__':
+def runserver():
     wsgi_apps = [('/', WSGIHandler())]
     # server = wsgiserver.CherryPyWSGIServer(('localhost', 8000), wsgi_apps, server_name='localhost')
     server = wsgiserver.CherryPyWSGIServer(('localhost', 8000), WSGIHandler(), server_name='localhost')
@@ -23,3 +23,8 @@ if __name__ == '__main__':
     # from wsgiref.simple_server import make_server
     # httpd = make_server('', 8000, WSGIHandler())
     # httpd.serve_forever()
+    return server
+
+if __name__ == '__main__':
+    runserver()
+
