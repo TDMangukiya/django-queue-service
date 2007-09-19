@@ -82,3 +82,9 @@ INSTALLED_APPS = (
     # 'django.contrib.admin',
     'qs.queue',
 )
+
+# Django Queue Service settings
+#DQS_HOST = 'localhost' # default 'localhost'
+#DQS_PORT = 8000  # default 8000
+#DQS_SERVER_NAME = 'localhost' # default 'localhost'
+
