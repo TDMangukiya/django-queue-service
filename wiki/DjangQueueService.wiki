@@ -14,4 +14,10 @@ The question often comes up on the [http://groups.google.com/group/django-users 
  * MovingForward
  * GettingInvolved
 
+== Email ==
+ * Commits http://groups.google.com/group/django-queue-server-commits
+
+== Feeds ==
+ * [http://groups.google.com/group/django-queue-server-commits/feed/rss_v2_0_msgs.xml Last 15 Commits] (RSS)
+ * [http://groups.google.com/group/django-queue-server-commits/feeds All Commits] (Atom/RSS)
  
