@@ -3,11 +3,6 @@ from django.db import models
 
 class Queue(models.Model):
     """
-    >>> from queue.models import Queue
-    >>> test_queue = Queue(name="test_queue")
-    >>> test_queue.save()
-    >>> print test_queue.default_expire
-    5
     """
     name = models.CharField(maxlength=255, unique=True, db_index=True)
     default_expire = models.PositiveIntegerField(default=5, help_text="In minutes.")
@@ -65,69 +60,6 @@ class MessageManager(models.Manager):
 
 class Message(models.Model):
     """
-    >>> from queue.models import Queue
-    >>> default = Queue.objects.get(name="default")
-    >>> print default.name
-    default
-    >>> default.message_set.count()
-    3
-    >>> test2 = Queue.objects.create(name='test2')
-    >>> from queue.models import Message
-    >>> test2msg = test2.message_set.create(message='test2 message')
-    >>> x=Message(message="t1",queue=default)
-    >>> x.save()
-    >>> x=Message(message="t2",queue=default)
-    >>> x.save()
-    >>> x=Message(message="t3",queue=default)
-    >>> x.save()
-    >>> print Message.objects.pop('default').message
-    a
-    >>> print Message.objects.pop(default).message
-    b
-    >>> y=Message.objects.pop('default')
-    >>> print y.message
-    c
-    >>> y.visible
-    False
-    >>> print len(default.message_set.all())
-    6
-    >>> x=Message(message="hello",queue=default)
-    >>> x.save()
-    >>> print x.message
-    hello
-    >>> x.timestamp == None
-    False
-    >>> x.visible
-    True
-    >>> x=Message(queue=default)
-    >>> x.save()
-    >>> print ">>%s<<" % x.message
-    >><<
-    >>> x.visible
-    True
-    
-    >>> len(Message.objects.filter(visible=True, queue=default))
-    5
-    >>> x=Message(message="aa",queue=default).save()
-    >>> x=Message(message="bb",queue=default).save()
-    >>> x=Message(message="cc",queue=default).save()
-    >>> a=Message.objects.pop('default')
-    >>> b=Message.objects.pop('default')
-    >>> c=Message.objects.pop('default')
-    >>> a.expires=datetime.datetime.now()
-    >>> a.save()
-    >>> b.expires=datetime.datetime.now()
-    >>> b.save()
-    >>> import time
-    >>> time.sleep(.02) # needed on fast machines for the below test to succeed
-    >>> Message.objects.clear_expirations(default)
-    >>> len(default.message_set.filter(visible=True))
-    7
-    >>> t2x = test2.message_set.pop()
-    >>> print t2x.message
-    test2 message
-    >>> print t2x.visible, t2x.expires is not None
-    False True
     """
     message = models.TextField()
     visible = models.BooleanField(default=True, db_index=True)
