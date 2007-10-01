@@ -1,6 +1,0 @@
-[{"pk": "1", "model": "queue.queue", "fields": {"name": "default", "default_expire": 5}},
- {"pk": "2", "model": "queue.queue", "fields": {"name": "primary", "default_expire": 5}},
- {"pk": "3", "model": "queue.queue", "fields": {"name": "secondary", "default_expire": 5}},
- {"pk": "1", "model": "queue.message", "fields": {"queue": 1, "visible": true, "message": "a", "expires": null, "timestamp": "2007-07-27 21:50:27"}},
- {"pk": "2", "model": "queue.message", "fields": {"queue": 1, "visible": true, "message": "b", "expires": null, "timestamp": "2007-07-27 21:50:33"}},
- {"pk": "3", "model": "queue.message", "fields": {"queue": 1, "visible": true, "message": "c", "expires": null, "timestamp": "2007-07-27 21:50:40"}}]

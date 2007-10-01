@@ -1,22 +1,14 @@
-import unittest
-from queue.models import *
-#from models import *
+from django.test import TestCase
+from queue.models import Queue, Message
 from django.test.utils import create_test_db, destroy_test_db
 
 
-class CreateMessageCase( unittest.TestCase ):
+class CreateMessageCase(TestCase):
     def setUp( self ):
-        self.db = create_test_db(autoclobber=True, verbosity=0)
-        
-        Queue.objects.create( name='default', default_expire=5 ).save()
-        Queue.objects.create( name='primary', default_expire=5 ).save()
-        Queue.objects.create( name='secondary', default_expire=5 ).save()
-        
-    def tearDown( self ):
-        ## todo: destroy_test_db differs from api doc. http://www.djangoproject.com/documentation/testing/
-        ## This doesn't seem to have api symmetry with setUP(). investigate later.
-        destroy_test_db('test_qqqservice', verbosity=0)
-        
+        Queue.objects.create( name='default', default_expire=5)
+        Queue.objects.create( name='primary', default_expire=5)
+        Queue.objects.create( name='secondary', default_expire=5)
+
     def testQueue( self ):
         assert Queue.objects.all().count() == 3
 
@@ -48,7 +40,7 @@ class CreateMessageCase( unittest.TestCase ):
         dq = Queue.objects.get ( name='default' )
 
         for message in input:        
-            Message.objects.create( message=message, queue=dq, visible=True ).save()
+            Message.objects.create( message=message, queue=dq, visible=True )
         output = [ Message.objects.pop( 'default' ).message for x in range(count)]
         
         ## verify FIFO
@@ -71,7 +63,7 @@ class CreateMessageCase( unittest.TestCase ):
         
 from django.test.client import Client
 
-class SimpleTest(unittest.TestCase):
+class SimpleTest(TestCase):
     def setUp(self):
         # Every test needs a client.
         self.client = Client()
@@ -84,6 +76,10 @@ class SimpleTest(unittest.TestCase):
         self.failUnlessEqual( ['web_test'], eval( response.content) )
 
     def test_qMessage( self ):
+        # First create the queue
+        response = self.client.post('/createqueue/', dict( name='web_test'))
+        self.failUnlessEqual(response.status_code, 200)
+
         response = self.client.post('/q/web_test/put/', { 'message' : 'Hello Web!' })
         self.failUnlessEqual(response.status_code, 200)
 
