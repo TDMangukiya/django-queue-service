@@ -70,7 +70,7 @@ class SimpleTest(TestCase):
 
     def test_qCreation(self):
         response = self.client.post('/createqueue/', dict( name='web_test'))
-        self.failUnlessEqual(response.status_code, 200)
+        self.failUnlessEqual(200, response.status_code)
 
         response = self.client.get('/listqueues/')
         self.failUnlessEqual( ['web_test'], eval( response.content) )
@@ -78,17 +78,32 @@ class SimpleTest(TestCase):
     def test_qMessage( self ):
         # First create the queue
         response = self.client.post('/createqueue/', dict( name='web_test'))
-        self.failUnlessEqual(response.status_code, 200)
+        self.failUnlessEqual(200, response.status_code)
 
         response = self.client.post('/q/web_test/put/', { 'message' : 'Hello Web!' })
-        self.failUnlessEqual(response.status_code, 200)
+        self.failUnlessEqual(200, response.status_code)
 
         response = self.client.get('/q/web_test/count/')
-        self.failUnlessEqual(response.status_code, 200)
+        self.failUnlessEqual(200, response.status_code)
         self.failUnlessEqual( '1', response.content )
 
         response = self.client.get('/q/web_test/')
-        self.failUnlessEqual(response.status_code, 200)
+        self.failUnlessEqual(200, response.status_code)
         self.failUnlessEqual( 'Hello Web!', response.content )
 
+    def test_allowed_methods(self):
+        '''Issues a POST where a GET is expected (and vice-versa) 
+and verifies that a 403:Forbidden response code is received.'''
+        response =  self.client.post('/listqueues/')
+        self.failUnlessEqual(403, response.status_code)
+
+        # Create the queue needed by the next few tests
+        response = self.client.post('/createqueue/', dict(name='web_test'))
+        self.failUnlessEqual(200, response.status_code)
+
+        response = self.client.post('/q/web_test/')
+        self.failUnlessEqual(403, response.status_code)
+
+        response = self.client.get('/q/web_test/put/', {'message':'Hello Web!'})
+        self.failUnlessEqual(403, response.status_code)
 
