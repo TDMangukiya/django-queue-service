@@ -28,7 +28,6 @@ Returns HttpResponseForbidden if view is called with a disallowed method.'''
     return _decorator
 
 # Queue Methods
-@check_allowed_methods(['POST'])
 def create_queue(request):
     # test post with
     # curl -i http://localhost:8000/createqueue/ -d name=default
@@ -38,8 +37,8 @@ def create_queue(request):
     q = Queue(name=requested_name)
     q.save()
     return HttpResponse("", mimetype='text/plain')
+create_queue = check_allowed_methods(['POST'])(create_queue)
 
-@check_allowed_methods(['POST', 'DELETE'])
 def delete_queue(request):
     # test post with
     # curl -i http://localhost:8000/deletequeue/ -d name=default
@@ -54,8 +53,8 @@ def delete_queue(request):
         return HttpResponse("", mimetype='text/plain')
     except Queue.DoesNotExist:
         return HttpResponseNotFound()
+delete_queue=check_allowed_methods(['POST', 'DELETE'])(delete_queue)
 
-@check_allowed_methods(['POST'])
 def purge_queue(request):
     # test post with
     # curl -i http://localhost:8000/purgequeue/ -d name=default
@@ -68,8 +67,8 @@ def purge_queue(request):
         return HttpResponse("", mimetype='text/plain')
     except Queue.DoesNotExist:
         return HttpResponseNotFound()
+purge_queue=check_allowed_methods(['POST'])(purge_queue)
 
-@check_allowed_methods(['GET'])
 def list_queues(request):
     # test post with
     # curl -i http://localhost:8000/listqueues/
@@ -77,12 +76,12 @@ def list_queues(request):
     for queue in Queue.objects.all():
         result_list.append(queue.name)
     return HttpResponse(simplejson.dumps(result_list), mimetype='application/json')
+list_queues = check_allowed_methods(['GET'])(list_queues)
 
 #
 # Message methods - all of these will be operating on messages against a queue...
 #
 
-@check_allowed_methods(['GET'])
 def get(request, queue_name, response_type='text'):
     # test count with
     # curl -i http://localhost:8000/q/default/
@@ -108,19 +107,18 @@ def get(request, queue_name, response_type='text'):
         if msg:
             response_data = msg.message
         return HttpResponse(response_data, mimetype='text/plain')
+get = check_allowed_methods(['GET'])(get)
 
-#@check_allowed_methods(['POST'])
 def clear_expirations(request, queue_name):
     # test count with
-    # curl -i http://localhost:8000/q/default/clearexpire/
-    # @TODO: This should only work with a POST as the following code changes data
+    # curl -i http://localhost:8000/q/default/clearexpire/ -d forcepost=y
     try:
         Message.objects.clear_expirations(queue_name)
         return HttpResponse("", mimetype='text/plain')
     except Queue.DoesNotExist:
         return HttpResponseNotFound()
+clear_expirations = check_allowed_methods(['POST'])(clear_expirations)
 
-@check_allowed_methods(['GET'])
 def count(request, queue_name, response_type='text'):
     # test count with
     # curl -i http://localhost:8000/q/default/count/
@@ -135,8 +133,8 @@ def count(request, queue_name, response_type='text'):
             return HttpResponse("%s" % num_visible, mimetype='text/plain')
     except Queue.DoesNotExist:
         return HttpResponseNotFound()
+count = check_allowed_methods(['GET'])(count)
 
-@check_allowed_methods(['POST', 'DELETE'])
 def delete(request, queue_name):
     # test post with
     # curl -i http://localhost:8000/q/default/delete/ -d message_id=1
@@ -151,8 +149,8 @@ def delete(request, queue_name):
         return HttpResponseNotFound()
     except Message.DoesNotExist:
         return HttpResponseNotFound()
+delete = check_allowed_methods(['POST', 'DELETE'])(delete)
 
-@check_allowed_methods(['POST'])
 def put(request, queue_name):
     # test post with
     # curl -i http://localhost:8000/q/default/put/ -d message=hello
@@ -163,4 +161,5 @@ def put(request, queue_name):
         return HttpResponse("OK", mimetype='text/plain')
     except Queue.DoesNotExist:
         return HttpResponseNotFound()
+put = check_allowed_methods(['POST'])(put)
 

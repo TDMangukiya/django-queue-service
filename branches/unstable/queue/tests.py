@@ -1,6 +1,6 @@
 from django.test import TestCase
 from queue.models import Queue, Message
-from django.test.utils import create_test_db, destroy_test_db
+from django.test.client import Client
 
 
 class CreateMessageCase(TestCase):
@@ -59,9 +59,7 @@ class CreateMessageCase(TestCase):
             
         self.failUnlessEqual(len(Message.objects.filter(visible=True)), 30)        
         self.failUnlessEqual(len(Message.objects.filter(visible=False)), 20)        
-      
-        
-from django.test.client import Client
+
 
 class SimpleTest(TestCase):
     def setUp(self):
@@ -106,4 +104,7 @@ and verifies that a 403:Forbidden response code is received.'''
 
         response = self.client.get('/q/web_test/put/', {'message':'Hello Web!'})
         self.failUnlessEqual(403, response.status_code)
+
+        response = self.client.post('/q/web_test/put/', {'message':'Hello Web!'})
+        self.failUnlessEqual(200, response.status_code)
 

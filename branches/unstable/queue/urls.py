@@ -5,7 +5,7 @@ urlpatterns = patterns('',
     (r'^deletequeue/$', 'qs.queue.views.delete_queue'), #post 'name' of queue
     (r'^purgequeue/$', 'qs.queue.views.purge_queue'),   #post 'name' of queue
     (r'^listqueues/$', 'qs.queue.views.list_queues'),
-    
+
     (r'^q/(?P<queue_name>\w+)/put/$', 'qs.queue.views.put'),
     (r'^q/(?P<queue_name>\w+)/clearexpire/$', 'qs.queue.views.clear_expirations'),
     (r'^q/(?P<queue_name>\w+)/count/json/$', 'qs.queue.views.count', {"response_type":"json"}),
