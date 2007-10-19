@@ -1,3 +1,5 @@
 #summary Getting Involved
 
-The Queue Service project is (at the moment) a week's hacking, made available for your enjoyment. If you'd like to get involved with this project, or send me a patch to an obvious bug, please don't hesitate to contact me.
+The Queue Service project is made available for your use and/or enjoyment. We welcome your feedback, thoughts, and issues! You can contact me directly, or feel free to [http://code.google.com/p/django-queue-service/issues/entry put them into our issue tracker].
+
+If you'd like to get more deeply involved with this project, please don't hesitate to contact me.
