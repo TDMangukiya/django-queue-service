@@ -12,7 +12,6 @@ The question often comes up on the [http://groups.google.com/group/django-users 
 
  * BackgroundHistory
  * MovingForward
- * GettingInvolved
 
 == Email ==
  * Commits http://groups.google.com/group/django-queue-server-commits
