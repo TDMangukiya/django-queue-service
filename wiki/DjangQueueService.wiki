@@ -15,8 +15,7 @@ The question often comes up on the [http://groups.google.com/group/django-users 
 
 == Email ==
  * Discussion http://groups.google.com/group/django-queue-service/topics
-   * [mailto:django-queue-service@googlegroups.com
- django-queue-service@googlegroups.com]
+   * [mailto:django-queue-service@googlegroups.com django-queue-service@googlegroups.com]
  * Commits http://groups.google.com/group/django-queue-server-commits
 
 == Feeds ==
