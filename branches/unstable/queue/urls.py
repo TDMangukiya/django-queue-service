@@ -1,4 +1,5 @@
 from django.conf.urls.defaults import *
+from django.conf import settings
 
 urlpatterns = patterns('',
     (r'^createqueue/$', 'qs.queue.views.create_queue'), #post 'name' of queue
@@ -14,3 +15,12 @@ urlpatterns = patterns('',
     (r'^q/(?P<queue_name>\w+)/json/$', 'qs.queue.views.get', {"response_type":"json"}),
     (r'^q/(?P<queue_name>\w+)/$', 'qs.queue.views.get', {"response_type":"text"}),
 )
+
+_ENABLE_REST_URLS = (hasattr(settings, 'DQS_ENABLE_REST_URLS') and [settings.DQS_ENABLE_REST_URLS] or [True])[0]
+if _ENABLE_REST_URLS:
+    urlpatterns += patterns('qs.queue.rest_views',
+        (r'^$', 'root'),
+        (r'^(?P<queue_name>\w+)/$', 'queue'),
+        (r'^(?P<queue_name>\w+)/(?P<message_id>\w+)$', 'message'),
+    )
+

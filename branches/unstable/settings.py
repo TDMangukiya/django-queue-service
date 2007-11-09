@@ -68,10 +68,6 @@ MIDDLEWARE_CLASSES = (
 ROOT_URLCONF = 'qs.urls'
 
 TEMPLATE_DIRS = (
-    # Put strings here, like "/home/html/django_templates" or "C:/www/django/templates".
-    # Always use forward slashes, even on Windows.
-    # Don't forget to use absolute paths, not relative paths.
-    #"/Users/heckj/Desktop/qs/templates",
 )
 
 INSTALLED_APPS = (
@@ -87,4 +83,4 @@ INSTALLED_APPS = (
 #DQS_HOST = 'localhost' # default 'localhost'
 #DQS_PORT = 8000  # default 8000
 #DQS_SERVER_NAME = 'localhost' # default 'localhost'
-
+#DQS_ENABLE_REST_URLS = True # default True
