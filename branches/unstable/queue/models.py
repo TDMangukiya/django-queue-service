@@ -1,6 +1,7 @@
 import datetime
 from django.db import models
 
+
 class Queue(models.Model):
     name = models.CharField(maxlength=255, unique=True, db_index=True)
     default_expire = models.PositiveIntegerField(default=5, help_text="In minutes.")
@@ -10,6 +11,25 @@ class Queue(models.Model):
 
     class Admin:
         list_display = ('name', 'default_expire')
+
+    def clear_expirations(self):
+        """
+        Changes visibility to True for messages whose expiration time has elapsed.
+        queue can either be the name of a queue or an instance of Queue.
+        """
+        from django.db import connection, transaction, DatabaseError
+        cursor = connection.cursor()
+        try:
+            cursor.execute("UPDATE %s set expires=%%s, visible=%%s \
+                       where queue_id=%%s and visible=%%s and \
+                       expires < %%s" % Message._meta.db_table, 
+                       [None, True, self.id, False, datetime.datetime.now()])
+        except DatabaseError:
+            # @RD: These updates could be allowed to fail silently.
+            pass
+        else:
+            transaction.commit_unless_managed()
+        return None
 
 class MessageManager(models.Manager):
     def pop_many(self, queue=None, expire_interval=5, num=25):
@@ -26,11 +46,24 @@ class MessageManager(models.Manager):
         else:
             f = isinstance(queue, Queue) and queue.message_set or \
                                          self.filter(queue__name=queue)
-        results = f.filter(visible=True).order_by('timestamp', 'id')[0:num]
-        for result in results:
-            result.visible = False
-            result.expires = datetime.datetime.now() + datetime.timedelta(minutes=expire_interval)
-            result.save()
+        now = datetime.datetime.now()
+        results = f.filter(models.Q(visible=True) | models.Q(expires__lt=now)).order_by('timestamp', 'id')[0:num]
+
+        # now we bulk update messages in this set with 
+        # visible=False and expires=now+expire_interval
+        expires = now + datetime.timedelta(minutes=expire_interval)
+        id_list = [m.id for m in results]
+        from django.db import connection, transaction, DatabaseError
+        cursor = connection.cursor()
+        try:
+            cursor.execute("UPDATE %s set expires=%%s, visible=%%s \
+                       where id in %s" % (Message._meta.db_table, str(tuple(id_list))),
+                       [expires, False])
+        except DatabaseError:
+            # @RD -> Open issue: Do we need to catch this exception?
+            pass
+        else:
+            transaction.commit_unless_managed()
         return results
 
     def pop(self, queue=None, expire_interval=5):
@@ -57,25 +90,11 @@ class MessageManager(models.Manager):
             return None
 
     def clear_expirations(self, queue):
-        """
-        Changes visibility to True for messages whose expiration time has elapsed.
-        queue can either be the name of a queue or an instance of Queue.
-        """
+        # This method has been moved to the Queue object but is left here
+        # for backward compatibility
         q = isinstance(queue, Queue) and queue or Queue.objects.get(name=queue)
-        from django.db import connection, transaction, DatabaseError
-        cursor = connection.cursor()
-        try:
-            cursor.execute("UPDATE %s set expires=%%s, visible=%%s \
-                       where queue_id=%%s and visible=%%s and \
-                       expires < %%s" % self.model._meta.db_table, 
-                       [None, True, q.id, False, datetime.datetime.now()])
-        except DatabaseError:
-            # @RD: For thread safety: these updates could be allowed to fail silently
-            # @RD: Perhaps, this isn't needed.
-            pass
-        else:
-            transaction.commit_unless_managed()
-        return None
+        q.clear_expirations()
+
 
 class Message(models.Model):
     message = models.TextField()

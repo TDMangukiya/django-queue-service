@@ -21,6 +21,6 @@ if _ENABLE_REST_URLS:
     urlpatterns += patterns('qs.queue.rest_views',
         (r'^$', 'root'),
         (r'^(?P<queue_name>\w+)/$', 'queue'),
-        (r'^(?P<queue_name>\w+)/(?P<message_id>\w+)$', 'message'),
+        (r'^(?P<queue_name>\w+)/(?P<message_id>\d+)/$', 'message'),
     )
 

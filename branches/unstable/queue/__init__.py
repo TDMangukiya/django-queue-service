@@ -4,8 +4,9 @@ from django.utils import simplejson
 from django.core import serializers
 from django.conf import settings
 
+_DEFAULT_FORMAT = hasattr(settings, 'DQS_REST_DEFAULT_OUTPUT_FORMAT') and settings.DQS_REST_DEFAULT_OUTPUT_FORMAT or 'json'
 
-def check_allowed_methods(methods=['GET'], formats=['text', 'json']):
+def check_allowed_methods(methods=['GET'], formats=['text', 'json', 'xml']):
     from django.http import HttpResponseForbidden
     '''
     Convenient decorator that verifies that a view is being called with 
@@ -16,7 +17,7 @@ def check_allowed_methods(methods=['GET'], formats=['text', 'json']):
     '''
     def _decorator(view_func):
         def _wrapper(request, *args, **kwargs):
-            format = request.REQUEST.get('format', 'text')
+            format = request.REQUEST.get('format', _DEFAULT_FORMAT)
             if request.method in methods and format in formats:
                 return view_func(request, *args, **kwargs)
             else:
@@ -31,7 +32,7 @@ class Status(object):
     "DRY code to handle json and text format responses uniformly"
 
     def __init__(self, in_dict=None):
-        self.format = in_dict and in_dict.get('format', 'text').lower() or 'text'
+        self.format = in_dict and in_dict.get('format', _DEFAULT_FORMAT).lower() or _DEFAULT_FORMAT
         self.success = True
         self.error_message = None
         self.response_override = None
@@ -69,6 +70,7 @@ class Status(object):
 
     response = property(_get_response, _set_response)
 
+    # JSON handler
     def _json_error_response(self):
         err = {'error':self.error}
         return HttpResponse(simplejson.dumps(err),
@@ -76,29 +78,29 @@ class Status(object):
 
     def _json_success_response(self):
         response = HttpResponse(mimetype='application/json; charset=%s' % settings.DEFAULT_CHARSET)
-        if hasattr(self.result, '__iter__'):
-            json_serializer = serializers.get_serializer("json")()
-            json_serializer.serialize(self.result, ensure_ascii=False, stream=response)
-        else:
-            response.content = simplejson.dumps(self.result, indent=4)
+        json_serializer = serializers.get_serializer("json")()
+        json_serializer.serialize(self.result, ensure_ascii=False, stream=response)
         return response
 
+    # Plain text handler
     def _text_error_response(self):
          return HttpResponse(smart_str(self.error, settings.DEFAULT_CHARSET),
             mimetype='text/plain; charset=%s' % settings.DEFAULT_CHARSET)
 
     def _text_success_response(self):
         text = ''
-        if hasattr(self.result, '__iter__'):
-            for item in self.result:
-                text = text + '\n' + force_unicode(item)
-        else:
-            text = self.result
+        for item in self.result:
+            text = text + '\n' + force_unicode(item)
         return HttpResponse(smart_str(text, settings.DEFAULT_CHARSET),
             mimetype='text/plain; charset=%s' % settings.DEFAULT_CHARSET)
 
+    # XML handler
     def _xml_error_response(self):
-        raise NotImplemented
+        raise Exception("Not implemented")
 
-    def _xml_status_response(self):
-        raise NotImplemented
+    def _xml_success_response(self):
+        response = HttpResponse(mimetype='text/xml; charset=%s' % settings.DEFAULT_CHARSET)
+        if hasattr(self.result, '__iter__'):
+            xml_serializer = serializers.get_serializer("xml")()
+            xml_serializer.serialize(self.result, ensure_ascii=False, stream=response)
+        return response

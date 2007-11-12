@@ -84,3 +84,5 @@ INSTALLED_APPS = (
 #DQS_PORT = 8000  # default 8000
 #DQS_SERVER_NAME = 'localhost' # default 'localhost'
 #DQS_ENABLE_REST_URLS = True # default True
+#DQS_REST_DEFAULT_OUTPUT_FORMAT = 'json' # default 'json'
+
