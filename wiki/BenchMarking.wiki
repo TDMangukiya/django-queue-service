@@ -12,4 +12,4 @@ The first test times the "add a message" function and the "get and delete a mess
 
 Following that, the next test runs through the timing for adding messages into the queue and getting/deleting messages from the queue, scaling the queue size from 0 to 25,000 items.
 
-  * The results from Joe's laptop, Nov 11, 2007 are available at http://django-queue-service.googlecode.com/svn/branches/unstable/docs/DQS_REST.xls
+  * The results from Joe's laptop, Nov 11, 2007 are available at http://django-queue-service.googlecode.com/svn/branches/unstable/docs/DQS_BENCHMARK.xls
