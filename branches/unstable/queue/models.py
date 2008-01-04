@@ -1,9 +1,12 @@
 import datetime
 from django.db import models
 
+# See Queue.get_attributes for how QueueAttributes is used
+QueueAttributes = None
+
 
 class Queue(models.Model):
-    name = models.CharField(maxlength=255, unique=True, db_index=True)
+    name = models.CharField(max_length=255, unique=True, db_index=True)
     default_expire = models.PositiveIntegerField(default=5, help_text="In minutes.")
 
     def __unicode__(self):
@@ -30,6 +33,28 @@ class Queue(models.Model):
         else:
             transaction.commit_unless_managed()
         return None
+
+    def get_attributes(self):
+        global QueueAttributes
+        if not QueueAttributes:
+            # Dynamically define a model that's never stored in the database.
+            # This is useful because returning the QueueAttributes as a 
+            # Django model allows us to use the JSON and XML serializers 
+            # directly on these objects.
+            class DummyMeta:
+                app_label = 'queue'
+            QueueAttributes = type('QueueAttribs', (models.Model,), {
+                'number_of_messages': models.PositiveIntegerField(),
+                'number_unread': models.PositiveIntegerField(),
+                'visibility_timeout': models.PositiveIntegerField(),
+                '__module__':'dummy.queue.models',
+                'Meta':DummyMeta
+            })
+        q_attribs = QueueAttributes(pk=0)
+        q_attribs.number_of_messages = self.message_set.count()
+        q_attribs.number_unread = self.message_set.filter(visible=True).count()
+        q_attribs.visibility_timeout = self.default_expire * 60 # in seconds
+        return q_attribs
 
 class MessageManager(models.Manager):
     def pop_many(self, queue=None, expire_interval=5, num=25):

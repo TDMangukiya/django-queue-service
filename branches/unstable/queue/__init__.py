@@ -4,7 +4,7 @@ from django.utils import simplejson
 from django.core import serializers
 from django.conf import settings
 
-_DEFAULT_FORMAT = hasattr(settings, 'DQS_REST_DEFAULT_OUTPUT_FORMAT') and settings.DQS_REST_DEFAULT_OUTPUT_FORMAT or 'json'
+_DEFAULT_FORMAT = getattr(settings, 'DQS_REST_DEFAULT_OUTPUT_FORMAT', 'json')
 
 def check_allowed_methods(methods=['GET'], formats=['text', 'json', 'xml']):
     from django.http import HttpResponseForbidden

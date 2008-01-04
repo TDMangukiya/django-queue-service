@@ -16,7 +16,7 @@ urlpatterns = patterns('',
     (r'^q/(?P<queue_name>\w+)/$', 'qs.queue.views.get', {"response_type":"text"}),
 )
 
-_ENABLE_REST_URLS = (hasattr(settings, 'DQS_ENABLE_REST_URLS') and [settings.DQS_ENABLE_REST_URLS] or [True])[0]
+_ENABLE_REST_URLS = getattr(settings, 'DQS_ENABLE_REST_URLS', True)
 if _ENABLE_REST_URLS:
     urlpatterns += patterns('qs.queue.rest_views',
         (r'^$', 'root'),
