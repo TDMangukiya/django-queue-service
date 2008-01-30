@@ -12,7 +12,7 @@ The question often comes up on the [http://groups.google.com/group/django-users 
 
  * BackgroundHistory
  * MovingForward
- * HowToUseDQS
+ * HowToUseDjangoQueueService
 
 == Email ==
  * Discussion http://groups.google.com/group/django-queue-service/topics
