@@ -2,6 +2,8 @@
 
 = Introduction =
 
+For setting up an instance of the queue service, see RunningQueueService.
+
 When it's running standalone, you communicate with it via http
 requests. There are setup calls that you'd likely use once (or just
 put the data into the fixtures) to create a queue. Once you had a
