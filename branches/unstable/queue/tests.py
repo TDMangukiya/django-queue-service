@@ -1,6 +1,7 @@
 from django.test import TestCase
-from queue.models import Queue, Message
 from django.test.client import Client
+
+from qs.queue.models import Queue, Message
 
 
 class CreateMessageCase(TestCase):
