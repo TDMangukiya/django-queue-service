@@ -1,4 +1,5 @@
 import datetime
+
 from django.utils import simplejson
 from django.http import HttpResponseRedirect
 from django.http import HttpResponse
@@ -8,8 +9,9 @@ from django.http import HttpResponseNotFound
 from django import newforms as forms
 from django.shortcuts import render_to_response
 from django.template import RequestContext
-from queue import check_allowed_methods
-from queue.models import Message, Queue
+
+from qs.queue import check_allowed_methods
+from qs.queue.models import Message, Queue
 
 
 # Queue Methods

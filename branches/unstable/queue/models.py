@@ -1,5 +1,9 @@
 import datetime
+
 from django.db import models
+from django.core.urlresolvers import reverse
+from django.contrib.sites.models import Site
+
 
 # See Queue.get_attributes for how QueueAttributes is used
 QueueAttributes = None
@@ -12,26 +16,16 @@ class Queue(models.Model):
     def __unicode__(self):
         return self.name
 
-    class Admin:
-        list_display = ('name', 'default_expire')
+    def get_absolute_url(self):
+        rel_url = reverse('queue', kwargs={'queue_name':self.name})
+        return u'http://%s%s' % (Site.objects.get_current().domain, rel_url)
 
     def clear_expirations(self):
         """
-        Changes visibility to True for messages whose expiration time has elapsed.
-        queue can either be the name of a queue or an instance of Queue.
+        Change visibility to True for messages whose expiration time has elapsed.
         """
-        from django.db import connection, transaction, DatabaseError
-        cursor = connection.cursor()
-        try:
-            cursor.execute("UPDATE %s set expires=%%s, visible=%%s \
-                       where queue_id=%%s and visible=%%s and \
-                       expires < %%s" % Message._meta.db_table, 
-                       [None, True, self.id, False, datetime.datetime.now()])
-        except DatabaseError:
-            # @RD: These updates could be allowed to fail silently.
-            pass
-        else:
-            transaction.commit_unless_managed()
+        qs = self.message_set.filter(visible=False, expires__lt=datetime.datetime.now())
+        qs.update(expires=None, visible=True)
         return None
 
     def get_attributes(self):
@@ -58,11 +52,12 @@ class Queue(models.Model):
 
 class MessageManager(models.Manager):
     def pop_many(self, queue=None, expire_interval=5, num=25):
-        """ returns visibles Message if available, or an empty list. Any Message
+        """Return visible Message objects if available, or an empty list. Any Message
         returned is set to 'invisible', so that future pop() invocations won't 
         retrieve it until after an expiration time (default of 5 minutes).
-        
-        queue can either be the name of a queue or an instance of Queue.
+
+        ``queue`` can either be the name of a queue or an instance of Queue.
+
         """
         if queue is None:
             # The following code allows us to do:
@@ -78,17 +73,8 @@ class MessageManager(models.Manager):
         # visible=False and expires=now+expire_interval
         expires = now + datetime.timedelta(minutes=expire_interval)
         id_list = [m.id for m in results]
-        from django.db import connection, transaction, DatabaseError
-        cursor = connection.cursor()
-        try:
-            cursor.execute("UPDATE %s set expires=%%s, visible=%%s \
-                       where id in %s" % (Message._meta.db_table, str(tuple(id_list))),
-                       [expires, False])
-        except DatabaseError:
-            # @RD -> Open issue: Do we need to catch this exception?
-            pass
-        else:
-            transaction.commit_unless_managed()
+        qs = self.filter(id__in=id_list)
+        qs.update(expires=expires, visible=False)
         return results
 
     def pop(self, queue=None, expire_interval=5):
@@ -128,7 +114,7 @@ class Message(models.Model):
                 help_text="After this time has elapsed, the visibility of the message \
                            is changed back from False to True (when clear_expirations is executed).")
     timestamp = models.DateTimeField(null=True, blank=True, db_index=True, default=datetime.datetime.now)
-    queue = models.ForeignKey(Queue, raw_id_admin=True)
+    queue = models.ForeignKey(Queue)
     objects = MessageManager()
 
     def save(self):
@@ -139,7 +125,6 @@ class Message(models.Model):
     def __unicode__(self):
         return u"<%s>:%s" % (self.id, self.message)
 
-    class Admin:
-        list_display = ('id', 'visible', 'expires', 'queue')
-        list_filter = ('visible',)
+
+from queue.admin import *
 

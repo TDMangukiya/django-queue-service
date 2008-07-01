@@ -3,6 +3,8 @@ from django.utils.encoding import smart_str, force_unicode
 from django.utils import simplejson
 from django.core import serializers
 from django.conf import settings
+from django.db.models.query import QuerySet
+
 
 _DEFAULT_FORMAT = getattr(settings, 'DQS_REST_DEFAULT_OUTPUT_FORMAT', 'json')
 
@@ -78,8 +80,12 @@ class Status(object):
 
     def _json_success_response(self):
         response = HttpResponse(mimetype='application/json; charset=%s' % settings.DEFAULT_CHARSET)
-        json_serializer = serializers.get_serializer("json")()
-        json_serializer.serialize(self.result, ensure_ascii=False, stream=response)
+        if self.result:
+            if isinstance(self.result, QuerySet):
+                json_serializer = serializers.get_serializer("json")()
+                json_serializer.serialize(self.result, ensure_ascii=False, stream=response)
+            else:
+                response.content = simplejson.dumps({'result':self.result})
         return response
 
     # Plain text handler
@@ -89,8 +95,11 @@ class Status(object):
 
     def _text_success_response(self):
         text = ''
-        for item in self.result:
-            text = text + '\n' + force_unicode(item)
+        if isinstance(self.result, QuerySet):
+            for item in self.result:
+                text = text + '\n' + force_unicode(item)
+        else:
+            text = unicode(self.result)
         return HttpResponse(smart_str(text, settings.DEFAULT_CHARSET),
             mimetype='text/plain; charset=%s' % settings.DEFAULT_CHARSET)
 
