@@ -117,14 +117,12 @@ class Message(models.Model):
     queue = models.ForeignKey(Queue)
     objects = MessageManager()
 
-    def save(self):
+    def save(self, *args, **kwargs):
         if not self.id:
             self.timestamp = datetime.datetime.now()
-        super(Message, self).save()
+        super(Message, self).save(*args, **kwargs)
 
     def __unicode__(self):
         return u"<%s>:%s" % (self.id, self.message)
 
-
-from queue.admin import *
 

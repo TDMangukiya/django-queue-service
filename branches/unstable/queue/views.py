@@ -6,7 +6,6 @@ from django.http import HttpResponse
 from django.http import HttpResponseForbidden
 from django.http import HttpResponseNotAllowed
 from django.http import HttpResponseNotFound
-from django import newforms as forms
 from django.shortcuts import render_to_response
 from django.template import RequestContext
 
