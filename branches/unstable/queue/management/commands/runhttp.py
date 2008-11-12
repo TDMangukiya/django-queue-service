@@ -21,8 +21,8 @@ class Command(BaseCommand):
     option_list = BaseCommand.option_list + (
         make_option('--numthreads', dest='numthreads', default='10',
             help='Specifies the number of worker threads to create. Defaults to 10 threads.'),
-        make_option('--daemonize', dest='daemonize', default='True',
-            help='Runs the Web server in the background. Defaults to True'),
+        make_option('--daemonize', dest='daemonize', default='False',
+            help='True/False. Runs the Web server in the background when True. Defaults to False.'),
         make_option('--workdir', dest='workdir', default='.',
             help='Work directory to change to before daemonizing. Defaults to the current directory.'),
         make_option('--pidfile', dest='pidfile', default='',
