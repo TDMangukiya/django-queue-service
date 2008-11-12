@@ -21,8 +21,8 @@ class Command(BaseCommand):
     option_list = BaseCommand.option_list + (
         make_option('--numthreads', dest='numthreads', default='10',
             help='Specifies the number of worker threads to create. Defaults to 10 threads.'),
-        make_option('--daemonize', dest='daemonize', nargs=0,
-            help='Runs the Web server in the background.'),
+        make_option('--daemonize', dest='daemonize', default='True',
+            help='Runs the Web server in the background. Defaults to True'),
         make_option('--workdir', dest='workdir', default='.',
             help='Work directory to change to before daemonizing. Defaults to the current directory.'),
         make_option('--pidfile', dest='pidfile', default='',
@@ -93,6 +93,7 @@ WARNING: This DOES NOT serve static media files.
                     server_name=options.get('servername', _SERVER_NAME))
 
         daemonize = options.get('daemonize', False)
+        daemonize = daemonize in (True, 1, 'True', 'true', 'y', 'Y', 'yes', 'Yes')
 
         if daemonize:
             from django.utils.daemonize import become_daemon
