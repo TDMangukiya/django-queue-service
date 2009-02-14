@@ -74,7 +74,8 @@ class MessageManager(models.Manager):
         expires = now + datetime.timedelta(minutes=expire_interval)
         id_list = [m.id for m in results]
         qs = self.filter(id__in=id_list)
-        qs.update(expires=expires, visible=False)
+        if qs:
+            qs.update(expires=expires, visible=False)
         return results
 
     def pop(self, queue=None, expire_interval=5):
