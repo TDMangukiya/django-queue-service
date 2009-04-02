@@ -45,7 +45,7 @@ more REST like (as opposed to my bastard REST/RPC initial
 implementation), I put together a benchmark script to see how fast
 things were going - basically to make sure we didn't bork anything in
 the process of development. That script
-(http://django-queue-service.googlecode.com/svn/branches/unstable/benchmark.py)
+(http://django-queue-service.googlecode.com/svn/trunk/benchmark.py)
 has a bunch of reasonably well encapsulated example calls to the DQS
 using urllib2 like the example above. Check it out for examples of
 getting something from the queue and deleting that item from the queue
